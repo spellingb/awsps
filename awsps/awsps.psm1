@@ -68,7 +68,7 @@ if ( Test-Path $env:AWSPS_VAR_PATH ) {
 }
 
 if ( Test-Path $env:AWSPS_ENV_VAR_PATH ) {
-    Read-ModuleEnvVarFile
+    Read-ModuleEnvVarFile -Import
 } else {
     $envvar_value = @{
         AWSPS_ENV_VAR_PATH = $env:AWSPS_ENV_VAR_PATH
@@ -78,7 +78,7 @@ if ( Test-Path $env:AWSPS_ENV_VAR_PATH ) {
 }
 
 # Export module Members
-Export-ModuleMember  -Variable "AWSPS_*"
+Export-ModuleMember  -Variable "AWSPS_*","ASA_"
 # $var_datafile = Import-LocalizedData -BaseDirectory ./Lib -FileName variables.psd1
 # foreach ( $kv in $var_datafile.GetEnumerator() ) {
 #     Write-Verbose "Importing Variable: $($kv.Key)"
