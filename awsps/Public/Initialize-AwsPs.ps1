@@ -31,6 +31,14 @@ function Initialize-AwsPs {
         [string]
         $GoogleHttpRedirectPort = '4589',
 
+        [Parameter(ParameterSetName='gauth')]
+        [string]
+        $OPSecretPath,
+
+        [Parameter(ParameterSetName='gauth')]
+        [bool]
+        $UseContainer,
+
         $ProfileName = 'default',
 
         $Region = 'us-east-1'
@@ -65,8 +73,9 @@ function Initialize-AwsPs {
             Write-ModuleEnvironmentVariable -Name AWSPS_GOOGLE_USER_NAME -Value $GoogleUserName
             Write-ModuleEnvironmentVariable -Name AWSPS_GOOGLE_CONNECTION_METHOD -Value $GoogleConnectionMethod
             Write-ModuleEnvironmentVariable -Name AWSPS_AUTH_TYPE -Value 'gsso'
-            Write-ModuleEnvironmentVariable -Name ASA_LOGIN_URL -Value "https://accounts.google.com/o/saml2/initsso?idpid=$env:AWSPS_GOOGLE_IDPID&spid=$env:AWSPS_GOOGLE_SPID&forceauthn=false&redirect_uri=http://localhost:$env:AWSPS_GOOGLE_HTTP_REDIRECT_PORT"
-
+            Write-ModuleEnvironmentVariable -Name ASA_LOGIN_URL -Value "https://accounts.google.com/o/saml2/initsso?idpid=$env:AWSPS_GOOGLE_IDPID&spid=$env:AWSPS_GOOGLE_SPID&forceauthn=false"
+            Write-ModuleEnvironmentVariable -Name AWSPS_OP_PATH -Value $OPSecretPath
+            Write-ModuleEnvironmentVariable -Name AWSPS_GOOGLE_CONNECTION_METHOD_USE_CONTAINER -Value $UseContainer
             Connect-AwsSso
         }
     }

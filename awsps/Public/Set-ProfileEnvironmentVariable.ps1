@@ -9,7 +9,7 @@ Function Set-ProfileEnvironmentVariable {
         $Value,
 
         [Parameter()]
-        [ValidateSet('User','System')]
+        [ValidateSet('User','System','File')]
         $Scope = 'User'
     )
     Process {
@@ -19,6 +19,10 @@ Function Set-ProfileEnvironmentVariable {
             }
             'System' {
                 $profilePath = $PROFILE.AllUsersAllHosts
+            }
+            'File' {
+                Write-ModuleEnvironmentVariable -Name $Name -Value $Value -PassThru
+                return
             }
         }
         if ( ! ( Test-Path $profilePath ) ) {

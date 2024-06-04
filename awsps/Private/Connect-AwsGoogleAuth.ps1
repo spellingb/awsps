@@ -12,7 +12,11 @@ function Connect-AwsGoogleAuth {
         $RoleArnDuration,
         $Region,
         $Bg_Response = 'None',
-        $ProfileName
+        $ProfileName,
+
+        [Parameter()]
+        [switch]
+        $UseContainer
     )
     Begin {
 
@@ -28,7 +32,17 @@ function Connect-AwsGoogleAuth {
             }
         }
         if ( $ConnectionMethod -eq 'aws-google-auth' ) {
-            if ( Assert-AwsGoogleAuth ) {
+            if ( $UseContainer ) {
+                $imagename = 'cevoaustralia/aws-google-auth:latest'
+                if ( Assert-Container -ImageName  $imagename) {
+                    # 'docker run -it -v "{0}/.aws:/root/.aws" cevoaustralia/aws-google-auth --profile default'
+                    $expression = 'docker run -it --platform linux/amd64 -v "{0}/.aws:/root/.aws" {1}' -f $HOME, $imagename
+                    if ( $ProfileName ) {
+                        $expression += ' --profile {0}' -f $ProfileName
+                    }
+                    Invoke-Expression $expression
+                }
+            } elseif ( Assert-AwsGoogleAuth ) {
                 Write-Verbose "[$($MyInvocation.MyCommand)] Starting Google Legacy Connection ($ConnectionMethod)"
                 $commandArgs = @(
                     "--disable-u2f",
@@ -57,5 +71,3 @@ function Connect-AwsGoogleAuth {
         }
     }
 }
-
-

@@ -3,7 +3,7 @@ function Connect-AwsSso {
     [alias('csso')]
     param (
         [Parameter()]
-        [ValidateSet('gsso','awssso')]
+        [ValidateSet('gsso','awssso', 'gsts')]
         $ConnectionMethod,
 
         [Parameter(ParameterSetName='profile', Position=0)]
@@ -12,6 +12,9 @@ function Connect-AwsSso {
         $Region
     )
     Process {
+        #ensure all vars are imported
+        Read-ModuleVarFile -Import -Scope Global | Out-Null
+        Read-ModuleEnvVarFile -Import | Out-Null
         if ( !$ConnectionMethod ) {
             $ConnectionMethod = $env:AWSPS_AUTH_TYPE
         }
@@ -36,10 +39,25 @@ function Connect-AwsSso {
                 $splat['Region'] = $Region
             }
 
-            Connect-AwsGoogleAuth @splat
+            if ( $env:AWSPS_OP_PATH ) {
+                Invoke-Expression "op read $env:AWSPS_OP_PATH" | Set-Clipboard
+                Write-Verbose -Verbose "Google Auth Secret saved to clipboard"
+            }
+
+            if ( $env:AWSPS_GOOGLE_CONNECTION_METHOD_USE_CONTAINER ) {
+                Connect-AwsGoogleAuth @splat -UseContainer
+            } else {
+                Connect-AwsGoogleAuth @splat
+            }
         }
         if ( $ConnectionMethod -eq 'awssso' ) {
             # aws sso workflow
+        }
+        if ( $ConnectionMethod -eq 'gsts' ) {
+            rm -rf "$home/Library/Caches/gsts"
+            gsts --idp-id=C03qd0gl5 --sp-id=270946040622 --aws-role-arn=arn:aws:iam::093056686911:role/GoogleApps --username=brandon.spell@cloudticity.com --playwright-engine-executable-path='/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge' --aws-region=us-east-1 --clean --force
+
+            Get-AwsCurrentAccountContext
         }
     }
 }

@@ -16,6 +16,8 @@ $splat = @{
     Region = 'us-east-1'
     GoogleConnectionMethod = 'aws-google-auth'
     GoogleUserName = 'john.doe@google.com'
+    OPSecretPath = 'op://Private/aws-google-auth/password'
+    UseContainer = $true
 }
 Initialize-AwsPs @splat
 
